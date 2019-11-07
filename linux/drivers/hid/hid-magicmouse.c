@@ -206,7 +206,7 @@ static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tda
 		state = tdata[7] & TOUCH_STATE_MASK;
 		down = state != TOUCH_STATE_NONE;
 	} else if (input->id.product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD2) {
-		hid_warn(hdev, "trackpad emit touch triggered\n");
+		printk(KERN_CRIT "trackpad emit touch triggered\n");
 		id = tdata[8] & 0xf;
 		x = (tdata[1] << 27 | tdata[0] << 19) >> 19;
 		y = -((tdata[3] << 30 | tdata[2] << 22 | tdata[1] << 14) >> 19);
@@ -293,9 +293,10 @@ static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tda
 		input_report_abs(input, ABS_MT_POSITION_X, x);
 		input_report_abs(input, ABS_MT_POSITION_Y, y);
 
-		if (input->id.product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD2)
-			hid_warn(hdev, "trackpad input report triggered\n");
+		if (input->id.product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD2) {
+			printk(KERN_CRIT "trackpad input report triggered\n");
 			input_report_abs(input, ABS_MT_PRESSURE, pressure);
+		}
 
 		if (report_undeciphered) {
 			if (input->id.product == USB_DEVICE_ID_APPLE_MAGICMOUSE)
@@ -341,6 +342,7 @@ static int magicmouse_raw_event(struct hid_device *hdev,
 	case TRACKPAD2_USB_REPORT_ID:
 		/* Expect twelve bytes of prefix and N*9 bytes of touch data. */
 		hid_warn(hdev, "trackpad touch triggered\n");
+		printk(KERN_CRIT "mm_raw_event size: %u\n", size);
 		if (size < 12 || ((size - 12) % 9) != 0)
 			return 0;
 		npoints = (size - 12) / 9;
@@ -717,6 +719,8 @@ static int magicmouse_hdev_resume(struct hid_device *hdev)
 	const u8 feature_mt[] = { 0xD7, 0x01 };
 	const u8 feature_mt_trackpad2_usb[] = { 0x02, 0x01 };
 	const u8 feature_mt_trackpad2_bt[] = { 0xF1, 0x02, 0x01 };
+
+	printk(KERN_CRIT "magicmouse coming up.");
 
 	// <moot code?>
 		//this code block seems to reset everything, mouse clicks no longer register
