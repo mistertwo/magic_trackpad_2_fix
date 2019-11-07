@@ -206,6 +206,7 @@ static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tda
 		state = tdata[7] & TOUCH_STATE_MASK;
 		down = state != TOUCH_STATE_NONE;
 	} else if (input->id.product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD2) {
+		hid_warn(hdev, "trackpad emit touch triggered\n");
 		id = tdata[8] & 0xf;
 		x = (tdata[1] << 27 | tdata[0] << 19) >> 19;
 		y = -((tdata[3] << 30 | tdata[2] << 22 | tdata[1] << 14) >> 19);
@@ -293,6 +294,7 @@ static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tda
 		input_report_abs(input, ABS_MT_POSITION_Y, y);
 
 		if (input->id.product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD2)
+			hid_warn(hdev, "trackpad input report triggered\n");
 			input_report_abs(input, ABS_MT_PRESSURE, pressure);
 
 		if (report_undeciphered) {
@@ -338,6 +340,7 @@ static int magicmouse_raw_event(struct hid_device *hdev,
 		break;
 	case TRACKPAD2_USB_REPORT_ID:
 		/* Expect twelve bytes of prefix and N*9 bytes of touch data. */
+		hid_warn(hdev, "trackpad touch triggered\n");
 		if (size < 12 || ((size - 12) % 9) != 0)
 			return 0;
 		npoints = (size - 12) / 9;
@@ -348,6 +351,7 @@ static int magicmouse_raw_event(struct hid_device *hdev,
 		}
 		msc->ntouches = 0;
 		for (ii = 0; ii < npoints; ii++)
+			hid_warn(hdev, "trackpad points good\n");
 			magicmouse_emit_touch(msc, ii, data + ii * 9 + 12);
 
 		clicks = data[1];
@@ -397,7 +401,9 @@ static int magicmouse_raw_event(struct hid_device *hdev,
 		input_report_rel(input, REL_X, x);
 		input_report_rel(input, REL_Y, y);
 	} else if (input->id.product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD2) {
+		hid_warn(hdev, "trackpad input_mt_sync_frame triggered?\n");
 		input_mt_sync_frame(input);
+		hid_warn(hdev, "trackpad input_report_key triggered?\n");
 		input_report_key(input, BTN_MOUSE, clicks & 1);
 	} else { /* USB_DEVICE_ID_APPLE_MAGICTRACKPAD */
 		input_report_key(input, BTN_MOUSE, clicks & 1);
