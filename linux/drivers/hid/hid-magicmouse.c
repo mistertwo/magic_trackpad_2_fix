@@ -709,76 +709,88 @@ MODULE_DEVICE_TABLE(hid, magic_mice);
 static int magicmouse_hdev_resume(struct hid_device *hdev)
 {
 	int ret;
-	// int feature_size;
-	// u8 *buf;
-	struct hid_report *report;
+	// int i;
+	int feature_size;
+	u8 *buf;
+	// struct hid_report *report;
+	// struct hid_report_enum *asdf;
 	// struct magicmouse_sc *msc = hid_get_drvdata(hdev);
-	// const u8 *feature;
-	// const u8 feature_mt[] = { 0xD7, 0x01 };
-	// const u8 feature_mt_trackpad2_usb[] = { 0x02, 0x01 };
-	// const u8 feature_mt_trackpad2_bt[] = { 0xF1, 0x02, 0x01 };
+	const u8 *feature;
+	const u8 feature_mt[] = { 0xD7, 0x01 };
+	const u8 feature_mt_trackpad2_usb[] = { 0x02, 0x01 };
+	const u8 feature_mt_trackpad2_bt[] = { 0xF1, 0x02, 0x01 };
 
 	printk(KERN_CRIT "magicmouse coming up.");
 
 	// <moot code?>
 	//this code block seems to reset everything, mouse clicks no longer register
-  if (hdev->product == USB_DEVICE_ID_APPLE_MAGICMOUSE)
-                report = hid_register_report(hdev, HID_INPUT_REPORT,
-                        MOUSE_REPORT_ID, 0);
-        else if (hdev->product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD2) {
-                if (hdev->vendor == BT_VENDOR_ID_APPLE) {
-												hid_err(hdev, "mt2 report setup bt reset_resume");
-                        report = hid_register_report(hdev, HID_INPUT_REPORT,
-                                TRACKPAD2_BT_REPORT_ID, 0);
-                } else {/* USB_VENDOR_ID_APPLE */
-												hid_err(hdev, "mt2 report setup usb reset_resume");
-                        report = hid_register_report(hdev, HID_INPUT_REPORT,
-                                TRACKPAD2_USB_REPORT_ID, 0);
-												hid_err(hdev, "report size post reset_resume: (%u)",
-																report->size);
-								}
-        } else { /* USB_DEVICE_ID_APPLE_MAGICTRACKPAD */
-                report = hid_register_report(hdev, HID_INPUT_REPORT,
-                        TRACKPAD_REPORT_ID, 0);
-                report = hid_register_report(hdev, HID_INPUT_REPORT,
-                        DOUBLE_REPORT_ID, 0);
-        }
-
-        if (!report) {
-                hid_err(hdev, "unable to register touch report\n");
-                ret = -ENOMEM;
-                goto err_stop_hw;
-        }
-        report->size = 6;
-		// this code breaks the wake up process. not sure why yet.
-		// ret = magicmouse_setup_input(msc->input, hdev);
-		// if (ret) {
-		// 	hid_err(hdev, "magicmouse setup input failed (%d)\n", ret);
-		// 	/* clean msc->input to notify probe() of the failure */
-		// 	msc->input = NULL;
-		// 	return ret;
-		// }
+  // if (hdev->product == USB_DEVICE_ID_APPLE_MAGICMOUSE)
+  //               report = hid_register_report(hdev, HID_INPUT_REPORT,
+  //                       MOUSE_REPORT_ID, 0);
+  //       else if (hdev->product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD2) {
+  //               if (hdev->vendor == BT_VENDOR_ID_APPLE) {
+	// 											hid_err(hdev, "mt2 report setup bt reset_resume");
+  //                       report = hid_register_report(hdev, HID_INPUT_REPORT,
+  //                               TRACKPAD2_BT_REPORT_ID, 0);
+  //               } else {/* USB_VENDOR_ID_APPLE */
+	// 											hid_err(hdev, "mt2 report setup usb reset_resume");
+  //                       report = hid_register_report(hdev, HID_INPUT_REPORT,
+  //                               TRACKPAD2_USB_REPORT_ID, 0);
+	// 											hid_err(hdev, "report size post reset_resume: (%u)",
+	// 															report->size);
+	// 											hid_err(hdev, "hdev report type: (%#x)",
+	// 															report->type);
+	// 											hid_err(hdev, "hdev report id: (%#x)",
+	// 															report->id);
+	// 							}
+  //       } else { /* USB_DEVICE_ID_APPLE_MAGICTRACKPAD */
+  //               report = hid_register_report(hdev, HID_INPUT_REPORT,
+  //                       TRACKPAD_REPORT_ID, 0);
+  //               report = hid_register_report(hdev, HID_INPUT_REPORT,
+  //                       DOUBLE_REPORT_ID, 0);
+  //       }
+	//
+  //       if (!report) {
+  //               hid_err(hdev, "unable to register touch report\n");
+  //               ret = -ENOMEM;
+  //               goto err_stop_hw;
+  //       }
+  //       report->size = 6;
+	//
+	// 			asdf = hdev->report_enum + HID_INPUT_REPORT;
+	// 			for (i = 3; i--;) {
+	// 				hid_err(hdev, "hdev report list entry: (%u)", asdf[i].numbered);
+	// 				hid_err(hdev, "hdev report list entry: (%u)", asdf[i].report_list);
+	// 			}
 
 		// this code allows the clicks to register again after the return code block
 		// has been run
-		// if (hdev->product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD2) {
-		// 	if (hdev->vendor == BT_VENDOR_ID_APPLE) {
-		// 		feature_size = sizeof(feature_mt_trackpad2_bt);
-		// 		feature = feature_mt_trackpad2_bt;
-		// 	} else { /* USB_VENDOR_ID_APPLE */
-		// 		feature_size = sizeof(feature_mt_trackpad2_usb);
-		// 		feature = feature_mt_trackpad2_usb;
-		// 	}
-		// } else {
-		// 	feature_size = sizeof(feature_mt);
-		// 	feature = feature_mt;
-		// }
-		//
-		// buf = kmemdup(feature, feature_size, GFP_KERNEL);
-		// if (!buf) {
-		// 	ret = -ENOMEM;
-		// 	goto err_stop_hw;
-		// }
+		if (hdev->product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD2) {
+			if (hdev->vendor == BT_VENDOR_ID_APPLE) {
+				feature_size = sizeof(feature_mt_trackpad2_bt);
+				feature = feature_mt_trackpad2_bt;
+			} else { /* USB_VENDOR_ID_APPLE */
+				feature_size = sizeof(feature_mt_trackpad2_usb);
+				feature = feature_mt_trackpad2_usb;
+			}
+		} else {
+			feature_size = sizeof(feature_mt);
+			feature = feature_mt;
+		}
+
+		buf = kmemdup(feature, feature_size, GFP_KERNEL);
+		if (!buf) {
+			ret = -ENOMEM;
+			goto err_stop_hw;
+		}
+
+		ret = hid_hw_raw_request(hdev, buf[0], buf, feature_size,
+					HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
+		kfree(buf);
+		if (ret != -EIO && ret != feature_size) {
+			hid_err(hdev, "unable to request touch data (%d)\n", ret);
+			goto err_stop_hw;
+		}
 	// </moot code?>
 		return 0;
 	err_stop_hw:
