@@ -742,8 +742,10 @@ static int magicmouse_hdev_resume(struct hid_device *hdev)
 	        return ret;
 	}
 
-static int magicmouse_hdev_suspend(struct hid_device *hdev, struct pm_message bbq)
-{
+static int magicmouse_hdev_suspend(
+	struct hid_device *hdev,
+	struct pm_message ignored
+){
 	return 0;
 }
 static struct hid_driver magicmouse_driver = {
